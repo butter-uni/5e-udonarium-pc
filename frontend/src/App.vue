@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import axios from "axios"
 import {ref} from 'vue'
-import { VueLoading } from "vue-loading-template";
-
-
 
 const sheetUrl = ref('')
 const simplePalette = ref(false);
