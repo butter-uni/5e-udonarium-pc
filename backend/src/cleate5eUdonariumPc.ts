@@ -18,7 +18,6 @@ export const cleate5eUdonariumPc = async (req:Request, res:Response) => {
       return;
     } else {
       const pattern = /^https:\/\/dndjp\.sakura\.ne\.jp\/OUTPUT\.php\?ID=\d+$/;
-      console.log(pattern.test(targetUrl))
       if(!pattern.test(targetUrl)) {
         res.status(400).send('URLの形式が正しくありません。')
         return;
@@ -228,12 +227,12 @@ function createXML (data:Map<string,any>,chatpaletteText:string) {
           .ele("data", {name: "レベル"}).txt(data.get("level")).up()
           .up()
         .ele("data", {name: "能力値"})
-          .ele("data", {name: "【筋力】"}).txt(modifierValue(data.get("ability").str)).up()
-          .ele("data", {name: "【敏捷力】"}).txt(modifierValue(data.get("ability").dex)).up()
-          .ele("data", {name: "【耐久力】"}).txt(modifierValue(data.get("ability").con)).up()
-          .ele("data", {name: "【知力】"}).txt(modifierValue(data.get("ability").int)).up()
-          .ele("data", {name: "【判断力】"}).txt(modifierValue(data.get("ability").wis)).up()
-          .ele("data", {name: "【魅力】"}).txt(modifierValue(data.get("ability").cha)).up()
+          .ele("data", {name: "【筋力】"}).txt(data.get("ability").str).up()
+          .ele("data", {name: "【敏捷力】"}).txt(data.get("ability").dex).up()
+          .ele("data", {name: "【耐久力】"}).txt(data.get("ability").con).up()
+          .ele("data", {name: "【知力】"}).txt(data.get("ability").int).up()
+          .ele("data", {name: "【判断力】"}).txt(data.get("ability").wis).up()
+          .ele("data", {name: "【魅力】"}).txt(data.get("ability").cha).up()
           .up()
         .ele("data", {name: "能力値修正"})
           .ele("data", {name: "筋力修正"}).txt(modifierValue(data.get("abilityBonus").str)).up()
@@ -323,7 +322,7 @@ function createChatPalette(data:Map<string, any>, simplePallete:boolean):string 
   p.push(`◆チャットパレット ${data.get("name")}(PL:${data.get("playername")})`)
   p.push(`▼ レベル ${data.get("level")} ${data.get("classes")} / ${data.get("race")} / ${data.get("sex")} / ${data.get("attribute")}`)
   p.push(`▼ 習熟ボーナス：${data.get("pb")}`)
-  p.push(`1d20${data.get("initiative")} イニシアチブ`)
+  p.push(`1d20${modifierValue(data.get("initiative"))} イニシアチブ`)
   p.push(`⚔️ ===攻撃===`)
   p = p.concat(data.get("attack").reduce((ary:string[], el:attackType)=>{
     ary.push(`1d20+${el.bonus} ${el.name}の攻撃ロール`);
