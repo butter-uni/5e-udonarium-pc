@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import axios from "axios"
 import {ref} from 'vue'
+import { VueLoading } from "vue-loading-template";
 
 
 
 const sheetUrl = ref('')
 const simplePalette = ref(false);
+const isProcessing = ref(false);
 
 const checkUrl = () => {
   if(sheetUrl.value === "") {
@@ -24,7 +26,11 @@ const onSubmit = async () => {
     alert(checkUrlResult);
     return;
   }
+  if(isProcessing.value) {
+    alert("生成処理中です")
+  }
   try {
+    isProcessing.value = true;
     // const response = await axios.get("https://generatezipfile-nrgupttyta-an.a.run.app",{
     const response = await axios.get(import.meta.env.VITE_API_URL ,{
       params: {
@@ -53,10 +59,14 @@ const onSubmit = async () => {
       URL.revokeObjectURL(url); 
       console.log("ファイル生成完了")
     } else {
+      alert("APIでエラーが発生しました。")
       console.error("APIでエラーが発生しました。", response)
     }
   } catch(e) {
+    alert("エラーが発生しました。")
     console.error("エラーが発生しました。", e)
+  } finally {
+    isProcessing.value = false;
   }
 }
 </script>
@@ -71,7 +81,9 @@ const onSubmit = async () => {
         つくった人→<a href="https://x.com/butter_uni">うにバター</a>
       </p>
       <input class="input" type="text" v-model="sheetUrl" placeholder="https://dndjp.sakura.ne.jp/OUTPUT.php?ID=XXXXX">
-      <button class="button" @click="onSubmit">コマ生成</button>
+      <button class="button" @click="onSubmit" :disabled="isProcessing">
+        {{isProcessing ? "ちょっとまってね" : "生成する"}}
+      </button>
       <label class="checkBox">
         <input type="checkbox" v-model="simplePalette">
         <div>チャットパレットの判定修正値を数値にする</div>
@@ -156,5 +168,9 @@ const onSubmit = async () => {
     font-size: 20px;
     border-radius: 10px;
     cursor: pointer;
+    width: 300px;
+  }
+  .button:disabled {
+    filter: grayscale(1);
   }
 </style>
