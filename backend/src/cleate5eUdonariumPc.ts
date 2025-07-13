@@ -164,7 +164,7 @@ function readCharactorData(html:string) {
       name: name,
       bonus: $attack.find(`td:nth-child(2) > div`).text().trim(),
       damage: $attack.find(`td:nth-child(3) > div`).text().trim(),
-      damagetype: $attack.find(`td:nth-child(4) > div`).text().trim(),
+      damageType: $attack.find(`td:nth-child(4) > div`).text().trim(),
       note: $attack.find(`td:nth-child(5) > div`).text().trim(),
     }
   }).filter(el=>el))
