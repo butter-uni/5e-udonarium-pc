@@ -216,6 +216,7 @@ function createXML (data:Map<string,any>,chatpaletteText:string) {
     .ele("data", {name: "character"})
       .ele("data", {name:"image"})
         .ele("data",{name:"imageIdentifier", type:"image"}).txt("null").up()
+        .up()
       .ele("data", {name:"common"})
         .ele("data", {name: "name"}).txt(data.get("name")).up()
         .ele("data", {name: "size"}).txt("1").up()
@@ -312,7 +313,7 @@ function createXML (data:Map<string,any>,chatpaletteText:string) {
             })
             root.up()
           })
-    root.up().up().up().up()
+    root.up().up().up()
     .ele("chat-palette", {dicebot: "DungeonsAndDragons5"}).txt(chatpaletteText).up()
         
   return root.end({ prettyPrint: true });
