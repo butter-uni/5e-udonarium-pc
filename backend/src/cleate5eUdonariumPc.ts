@@ -214,6 +214,8 @@ function createXML (data:Map<string,any>,chatpaletteText:string) {
   const root = create({ version: '1.0' })
   .ele("character")
     .ele("data", {name: "character"})
+      .ele("data", {name:"image"})
+        .ele("data",{name:"imageIdentifier", type:"image"}).txt("null").up()
       .ele("data", {name:"common"})
         .ele("data", {name: "name"}).txt(data.get("name")).up()
         .ele("data", {name: "size"}).txt("1").up()
@@ -245,7 +247,7 @@ function createXML (data:Map<string,any>,chatpaletteText:string) {
         .ele("data", {name: "行動データ"})
           .ele("data", {name: "AC"}).txt(data.get("ac")).up()
           .ele("data", {name: "HP", type: "numberResource", currentValue: data.get("hp")}).txt(data.get("hp")).up()
-          .ele("data", {name: "一時的HP", type: "numberResource", currentValue: data.get("0")}).txt("100").up()
+          .ele("data", {name: "一時的HP", type: "numberResource", currentValue: "0"}).txt("100").up()
           .ele("data", {name: "ヒット・ダイス"}).txt(data.get("hitdice")).up()
           .ele("data", {name: "インスピレーション", type:"numberResource", currentValue:"0"}).txt("1").up()
           .ele("data", {name: "習熟ボーナス"}).txt(data.get("pb")).up()
@@ -310,7 +312,7 @@ function createXML (data:Map<string,any>,chatpaletteText:string) {
             })
             root.up()
           })
-    root.up().up().up()
+    root.up().up().up().up()
     .ele("chat-palette", {dicebot: "DungeonsAndDragons5"}).txt(chatpaletteText).up()
         
   return root.end({ prettyPrint: true });
