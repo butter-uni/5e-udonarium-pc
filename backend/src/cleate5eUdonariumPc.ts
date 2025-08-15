@@ -12,6 +12,7 @@ export const cleate5eUdonariumPc = async (req:Request, res:Response) => {
     //キャラシURL
     const targetUrl = req.query.url as string | undefined;
     const simplePallete = req.query.simple_palette === "true"
+    const rollcommand = (req.query.rollcommand|| "") as string;
 
     if (!targetUrl) {
       res.status(400).send('URLクエリパラメータを指定してください。');
@@ -35,7 +36,7 @@ export const cleate5eUdonariumPc = async (req:Request, res:Response) => {
 
     const data = readCharactorData(encodeHtml)
 
-    const chatpalette = createChatPalette(data, simplePallete);
+    const chatpalette = createChatPalette(data, simplePallete, rollcommand);
 
     const xmlString = createXML(data,chatpalette)
 
@@ -320,15 +321,19 @@ function createXML (data:Map<string,any>,chatpaletteText:string) {
 }
 
 //チャットパレット生成
-function createChatPalette(data:Map<string, any>, simplePallete:boolean):string {
+function createChatPalette(data:Map<string, any>, simplePallete:boolean, rollcommand: string):string {
+
+  const ATTACK_ROLL = rollcommand === "default" ? "1d20" : "AT"
+  const CHECK_ROLL  = rollcommand === "default" ? "1d20" : "AR"
+
   let p:string[] = []
   p.push(`◆チャットパレット ${data.get("name")}(PL:${data.get("playername")})`)
   p.push(`▼ レベル ${data.get("level")} ${data.get("classes")} / ${data.get("race")} / ${data.get("sex")} / ${data.get("attribute")}`)
   p.push(`▼ 習熟ボーナス：${data.get("pb")}`)
-  p.push(`1d20${modifierValue(data.get("initiative"))} イニシアチブ`)
+  p.push(`${CHECK_ROLL}${modifierValue(data.get("initiative"))} イニシアチブ`)
   p.push(`⚔️ ===攻撃===`)
   p = p.concat(data.get("attack").reduce((ary:string[], el:attackType)=>{
-    ary.push(`1d20+${el.bonus} ${el.name}の攻撃ロール`);
+    ary.push(`${ATTACK_ROLL}+${el.bonus} ${el.name}の攻撃ロール`);
     ary.push(`${el.damage} ${el.damageType?"["+el.damageType+"]":""} ${el.name}のダメージ ${el.note?"("+el.note+")":""}`)
     return ary
   },[]))
@@ -336,39 +341,39 @@ function createChatPalette(data:Map<string, any>, simplePallete:boolean):string 
   p = p.concat([["str","筋力"],["dex","敏捷力"],["con","耐久力"],["int","知力"],["wis","判断力"],["cha","魅力"],].map(k=>{
     const [key,label] = k
     const mod = simplePallete ? modifierValue(data.get("abilityBonus")[key]) : `{${label}修正}`
-    return `1d20${mod} 【${label}】能力値判定`
+    return `${CHECK_ROLL}${mod} 【${label}】能力値判定`
   }))
   p.push(`🛡️ ===セーヴィングスロー===`)
   p = p.concat([["str","筋力"],["dex","敏捷力"],["con","耐久力"],["int","知力"],["wis","判断力"],["cha","魅力"],].map(k=>{
     const [key,label] = k
     const mod = simplePallete ? modifierValue(data.get("save")[key]) : `{${label}セーヴ}`
-    return `1d20${mod} 【${label}】セーヴィングスロー`
+    return `${CHECK_ROLL}${mod} 【${label}】セーヴィングスロー`
   }))
   p.push(`🎲 ===技能===`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").INTIMIDATION):"{〈威圧〉}"} ▼〈威圧〉 【魅】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").MEDICINE):"{〈医術〉}"} ▼〈医術〉 【判】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").ATHLETICS):"{〈運動〉}"} ▼〈運動〉 【筋】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").STEALTH):"{〈隠密〉}"} ▼〈隠密〉 【敏】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").ACROBATICS):"{〈軽業〉}"} ▼〈軽業〉 【敏】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").INSIGHT):"{〈看破〉}"} ▼〈看破〉 【判】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").PERFORMANCE):"{〈芸能〉}"} ▼〈芸能〉 【魅】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").NATURE):"{〈自然〉}"} ▼〈自然〉 【知】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").RELIGION):"{〈宗教〉}"} ▼〈宗教〉 【知】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").SURVIVAL):"{〈生存〉}"} ▼〈生存〉 【判】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").PERSUASION):"{〈説得〉}"} ▼〈説得〉 【魅】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").INVESTIGATION):"{〈捜査〉}"} ▼〈捜査〉 【知】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").PERCEPTION):"{〈知覚〉}"} ▼〈知覚〉 【判】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").SLEIGHTOFHAND):"{〈手先の早業〉}"} ▼〈手先の早業〉 【敏】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").ANIMALHANDLING):"{〈動物使い〉}"} ▼〈動物使い〉 【判】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").DECEPTION):"{〈ペテン〉}"} ▼〈ペテン〉 【魅】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").ARCANA):"{〈魔法学〉}"} ▼〈魔法学〉 【知】技能判定`)
-  p.push(`1d20${simplePallete?modifierValue(data.get("skill").HISTORY):"{〈歴史〉}"} ▼〈歴史〉 【知】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").INTIMIDATION):"{〈威圧〉}"} ▼〈威圧〉 【魅】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").MEDICINE):"{〈医術〉}"} ▼〈医術〉 【判】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").ATHLETICS):"{〈運動〉}"} ▼〈運動〉 【筋】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").STEALTH):"{〈隠密〉}"} ▼〈隠密〉 【敏】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").ACROBATICS):"{〈軽業〉}"} ▼〈軽業〉 【敏】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").INSIGHT):"{〈看破〉}"} ▼〈看破〉 【判】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").PERFORMANCE):"{〈芸能〉}"} ▼〈芸能〉 【魅】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").NATURE):"{〈自然〉}"} ▼〈自然〉 【知】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").RELIGION):"{〈宗教〉}"} ▼〈宗教〉 【知】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").SURVIVAL):"{〈生存〉}"} ▼〈生存〉 【判】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").PERSUASION):"{〈説得〉}"} ▼〈説得〉 【魅】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").INVESTIGATION):"{〈捜査〉}"} ▼〈捜査〉 【知】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").PERCEPTION):"{〈知覚〉}"} ▼〈知覚〉 【判】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").SLEIGHTOFHAND):"{〈手先の早業〉}"} ▼〈手先の早業〉 【敏】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").ANIMALHANDLING):"{〈動物使い〉}"} ▼〈動物使い〉 【判】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").DECEPTION):"{〈ペテン〉}"} ▼〈ペテン〉 【魅】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").ARCANA):"{〈魔法学〉}"} ▼〈魔法学〉 【知】技能判定`)
+  p.push(`${CHECK_ROLL}${simplePallete?modifierValue(data.get("skill").HISTORY):"{〈歴史〉}"} ▼〈歴史〉 【知】技能判定`)
   p.push(`🌱 ===その他の能力===`)
   p.push(``)
   const spellsHeader = [];
   spellsHeader.push(`🪄 ===呪文===`)
   spellsHeader.push(`呪文セーヴ難易度：${data.get("spellSave")}`)
-  spellsHeader.push(`1d20${modifierValue(data.get("spellAttack"))} 呪文攻撃ロール`)
+  spellsHeader.push(`${ATTACK_ROLL}${modifierValue(data.get("spellAttack"))} 呪文攻撃ロール`)
   spellsHeader.push(`📖 ===呪文リスト===`)
   const spellEmoji:{[key: string]: string} = {"lv0":"0⃣","lv1":"1⃣","lv2":"2⃣","lv3":"3⃣","lv4":"4⃣","lv5":"5⃣","lv6":"6⃣","lv7":"7⃣","lv8":"8⃣","lv9":"9⃣"}
   const spells = Object.keys(data.get("spells")).reduce((spl:string[],lvl)=>{

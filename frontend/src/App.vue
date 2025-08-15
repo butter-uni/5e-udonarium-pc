@@ -90,7 +90,13 @@ const onSubmit = async () => {
         <ul class="notes">
           <li>キャラクター画像は取り込みません。</li>
           <li>チャットパレットには変数参照を使用しているため、コマの能力値が変動した際に一部を除いてチャットパレットを修正せずに済みます。<br>一方でチャットパレット上で実際の修正値が確認しづらいため、変数参照が不要な場合は「チャットパレットの判定修正値を数値にする」をONにして生成してください。</li>
-
+        </ul>
+      </div>
+      <div>
+        <h2>更新履歴</h2>
+        <ul class="updates">
+          <li>v1.1.0 ダイスロールコマンドを1d20からAR/ATに変更</li>
+          <li>v1.0.0 リリース</li>
         </ul>
       </div>
 
@@ -103,10 +109,12 @@ const onSubmit = async () => {
   .container {
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr;
+    /* justify-content: center;
     align-items: center;
-    flex-direction: column;
+    flex-direction: column; */
+    justify-content: center;
     gap: 20px;
     font-size: 20px;
   }
@@ -114,6 +122,7 @@ const onSubmit = async () => {
     font-family: "Dela Gothic One", sans-serif;
     font-weight: 400;
     font-style: normal;
+    text-align: center;
   }
   h2 {
     font-weight: bold;
@@ -131,12 +140,18 @@ const onSubmit = async () => {
     text-align: center;
   }
   .notes {
+    width: 100%;
+    font-size: 14px;
+  }
+  .updates {
+    width: 100%;
     font-size: 14px;
   }
   .checkBox {
     display: flex;
     align-items: center;
     gap: 10px;
+    justify-content: center;
   }
   .checkBox input {
     display: none;
@@ -166,6 +181,7 @@ const onSubmit = async () => {
     border-radius: 10px;
     cursor: pointer;
     width: 300px;
+    margin: auto;
   }
   .button:disabled {
     filter: grayscale(1);
