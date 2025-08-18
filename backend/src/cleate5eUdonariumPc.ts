@@ -24,8 +24,6 @@ export const cleate5eUdonariumPc = async (req:Request, res:Response) => {
         return;
       }
     }
-    // --- 1. 指定したURLからHTMLを取得 ---
-    // axios.getの戻り値の型を明示的に指定するとより安全です
     const response = await axios.get(targetUrl,{
       responseType: "arraybuffer",
       responseEncoding: "binary"
@@ -40,7 +38,6 @@ export const cleate5eUdonariumPc = async (req:Request, res:Response) => {
 
     const xmlString = createXML(data,chatpalette)
 
-    // --- 5. XMLをZIPファイルにして返却 ---
     const archive = archiver('zip', {
       zlib: { level: 9 }
     });
@@ -63,7 +60,6 @@ export const cleate5eUdonariumPc = async (req:Request, res:Response) => {
     archive.finalize();
 
   } catch (error: any) { // error の型は unknown なので、any などにキャストしてアクセス
-    // エラーレスポンスの型も明示的に指定すると良いでしょう
     console.error(error)
     res.status(500).send('サーバーエラーが発生しました。');
   }
@@ -333,7 +329,7 @@ function createChatPalette(data:Map<string, any>, simplePallete:boolean, rollcom
   p.push(`${CHECK_ROLL}${modifierValue(data.get("initiative"))} イニシアチブ`)
   p.push(`⚔️ ===攻撃===`)
   p = p.concat(data.get("attack").reduce((ary:string[], el:attackType)=>{
-    ary.push(`${ATTACK_ROLL}+${el.bonus} ${el.name}の攻撃ロール`);
+    ary.push(`${ATTACK_ROLL}${modifierValue(el.bonus)} ${el.name}の攻撃ロール`);
     ary.push(`${el.damage} ${el.damageType?"["+el.damageType+"]":""} ${el.name}のダメージ ${el.note?"("+el.note+")":""}`)
     return ary
   },[]))
