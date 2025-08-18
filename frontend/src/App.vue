@@ -3,8 +3,11 @@ import axios from "axios"
 import {ref} from 'vue'
 
 const sheetUrl = ref('')
-const simplePalette = ref(false);
 const isProcessing = ref(false);
+const options = ref({
+  simplePalette: false,
+  d20roll: false,
+})
 
 const checkUrl = () => {
   if(sheetUrl.value === "") {
@@ -32,7 +35,8 @@ const onSubmit = async () => {
     const response = await axios.get(import.meta.env.VITE_API_URL ,{
       params: {
         url: sheetUrl.value,
-        simple_palette: simplePalette.value
+        simple_palette: options.value.simplePalette,
+        rollcommand: options.value.d20roll ? "default" : null
       },
       responseType: 'blob' 
     })
@@ -81,10 +85,16 @@ const onSubmit = async () => {
       <button class="button" @click="onSubmit" :disabled="isProcessing">
         {{isProcessing ? "ちょっとまってね" : "生成する"}}
       </button>
-      <label class="checkBox">
-        <input type="checkbox" v-model="simplePalette">
-        <div>チャットパレットの判定修正値を数値にする</div>
-      </label>
+      <div class="options">
+        <label class="checkBox">
+          <input type="checkbox" v-model="options.d20roll">
+          <div>チャットパレットのダイスロールコマンドを1d20にする</div>
+        </label>
+        <label class="checkBox">
+          <input type="checkbox" v-model="options.simplePalette">
+          <div>チャットパレットの判定修正値を数値にする</div>
+        </label>
+      </div>
       <div>
         <h2>ごちゅうい</h2>
         <ul class="notes">
@@ -95,6 +105,7 @@ const onSubmit = async () => {
       <div>
         <h2>更新履歴</h2>
         <ul class="updates">
+          <li>v1.1.1 ダイスロールコマンドを1d20とAR/ATから選択できるように</li>
           <li>v1.1.0 ダイスロールコマンドを1d20からAR/ATに変更</li>
           <li>v1.0.0 リリース</li>
         </ul>
@@ -186,4 +197,13 @@ const onSubmit = async () => {
   .button:disabled {
     filter: grayscale(1);
   }
+  .options {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 600px;
+    margin: auto;
+  }
+
 </style>
